@@ -15,20 +15,27 @@ mod SimpleStorage {
 
     #[storage]
     struct Storage {
-        numbers: LegacyMap<ContractAddress, u64>,
+        numbers: LegacyMap::<ContractAddress, u64>,
         owner: person
     }
 
-    #[derive(Copy, Drop, Serde, starknet::Store)] // we added a person struct that specifies the owner of the addrss. The owner has a name to input
+    #[derive(
+        Copy, Drop, Serde, starknet::Store
+    )] // we added a person struct that specifies the owner of the addrss. The owner has a name to 
     struct person {
         name: felt252,
         address: ContractAddress
     }
 
     #[constructor] // we're adding a constructor function, the contract will be deployd and initiate the first number at 0
-    fn constructor(ref self: ContractState) {
-        self.numbers.write(0);
-    }
+    fn constructor(ref self: ContractState, owner: person) {
+        self.owner.write(owner); // Person object and written into the contract's storage
+        self
+            .numbers
+            .write(
+                owner.address, 0
+            ); // Remember: we're mapping with a LegacyMap and matching the owner's address with a u64, which we set at the value 0
+    } //name and address HAVE to be supplied when deploying the contract
 
     #[abi(embed_v0)]
     impl SimpleStorage of super::ISimpleStorage<ContractState> {
