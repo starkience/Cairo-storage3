@@ -1,6 +1,7 @@
 // let's now track the total amount of entries
-// an event that a new number was stored
+// we associate a name ot the address. The favorite number is now linked to the name
 // a constructor function
+// we do this by deriving the person struct, and adding a constructur
 
 #[starknet::interface]
 trait ISimpleStorage<TContractState> {
@@ -16,12 +17,12 @@ mod SimpleStorage {
     #[storage]
     struct Storage {
         numbers: LegacyMap::<ContractAddress, u64>,
-        owner: person
+        owner: person // not same ownership we're talking about
     }
 
     #[derive(
         Copy, Drop, Serde, starknet::Store
-    )] // we added a person struct that specifies the owner of the addrss. The owner has a name to 
+    )] // we added a person struct that specifies the owner of the address. The owner has a name to 
     struct person {
         name: felt252,
         address: ContractAddress
@@ -30,11 +31,9 @@ mod SimpleStorage {
     #[constructor] // we're adding a constructor function, the contract will be deployd and initiate the first number at 0
     fn constructor(ref self: ContractState, owner: person) {
         self.owner.write(owner); // Person object and written into the contract's storage
-        self
-            .numbers
-            .write(
-                owner.address, 0
-            ); // Remember: we're mapping with a LegacyMap and matching the owner's address with a u64, which we set at the value 0
+        self.numbers.write(owner.address, 0);
+
+        // Remember: we're mapping with a LegacyMap and matching the owner's address with a u64, which we set at the value 0
     } //name and address HAVE to be supplied when deploying the contract
 
     #[abi(embed_v0)]
